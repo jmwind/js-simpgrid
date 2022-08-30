@@ -1,5 +1,6 @@
 import style from './index.css';
-import { useEffect, useState } from 'preact/hooks';
+import { useCallback, useEffect, useState } from 'preact/hooks';
+import { cloneElement } from 'preact';
 import ResizeIcon from '../assets/icons/move.svg'
 import MinimizeIcon from '../assets/icons/minimize.svg'
 import MoveLeftIcon from '../assets/icons/left.svg'
@@ -38,7 +39,7 @@ const Card = (props) => {
 }
 
 const NumberCard = (props) => {
-	const [val, setVal] = useState("11.9");
+	const [val, setVal] = useState("0.0");
 
 	useEffect(() => {
 		let timer = setInterval(() => setVal((Math.random() * 100).toFixed(1)), 1000);
@@ -52,24 +53,11 @@ const NumberCard = (props) => {
 	)
 }
 
-const Section = ({ name, number, children, max_columns, expanded, showTitle }) => {
-	const [order, setOrder] = useState(number);
-	const [span, setSpan] = useState(expanded);
-	const [movedBack, setMovedBack] = useState(false)
-	const [movedFoward, setMovedForward] = useState(false)
+const Section = ({ name, number, children, expanded, showTitle, reorder_func }) => {
+	const [order, setOrder] = useState(number)
+	const [span, setSpan] = useState(expanded)
 
-	const reorder = (units) => {
-		let current = order;
-		if (units < 0 && !movedBack) {
-			units--
-			setMovedBack(true)
-		} else if (units >= 0 && !movedBack) {
-			units++
-			setMovedBack(false)
-		}
-		setOrder(order + units);
-		console.log(`Moving item ${number} from ${current} to ${order + units}`)
-	}
+	useEffect(() => { setOrder(number) }, [number])
 
 	const resize = () => {
 		if (span == 1) {
@@ -79,12 +67,20 @@ const Section = ({ name, number, children, max_columns, expanded, showTitle }) =
 		}
 	}
 
+	const moveFwd = () => {
+		reorder_func(order, 1)
+	}
+
+	const moveBack = () => {
+		reorder_func(order, -1)
+	}
+
 	return (
 		<div class={style.box} style={{ order: `${order}`, gridArea: `auto / auto / span ${span} / span ${span}` }} >
 			{showTitle && <div class={style.box_header}>
-				<div style={{ flex: "1 1 auto", color: "white" }}>Widget {name}</div>
-				<img onClick={resize} class={style.box_header_icons} src={MoveLeftIcon} />
-				<img onClick={resize} class={style.box_header_icons} src={MoveRightIcon} />
+				<div class={style.box_header_title}>Widget {name}</div>
+				<img onClick={moveBack} class={style.box_header_icons} src={MoveLeftIcon} />
+				<img onClick={moveFwd} class={style.box_header_icons} src={MoveRightIcon} />
 				<img onClick={resize} class={style.box_header_icons} src={span == 1 ? ResizeIcon : MinimizeIcon} />
 			</div>
 			}
@@ -95,15 +91,51 @@ const Section = ({ name, number, children, max_columns, expanded, showTitle }) =
 
 Section.defaultProps = {
 	expanded: 1
-};
+}
+
+const Grid = ({ cols, children }) => {
+	const [columns, setColumns] = useState(cols)
+	const [orders, setOrders] = useState(0)
+
+	useEffect(() => { setColumns(cols) }, [cols])
+
+	const findChild = (index) => {
+		if (children) {
+			for (let i = 0; i < children.length; i++) {
+				if (children[i].props.number == index) {
+					return children[i]
+				}
+			}
+		}
+		return null
+	}
+
+	const reorder = (index, delta) => {
+		let new_index = index + delta;
+		let first = findChild(index)
+		let next = findChild(new_index)
+		if (first && next) {
+			first.props.number = index + delta
+			next.props.number = index
+			setOrders(orders + 1)
+		}
+	}
+
+	const childrenWithProps = children.map(child => {
+		return cloneElement(child, { reorder_func: reorder });
+	});
+
+	return (
+		<div class={style.container} style={{ gridTemplateColumns: `repeat(` + columns + `, 1fr)` }} id="app">
+			{childrenWithProps}
+		</div>
+	)
+}
 
 const App = () => {
-	const [colums, setColumns] = useState(3)
+	const [columns, setColumns] = useState(3)
 	const [cardNum, setCardNum] = useState(10)
 	const [showTitle, setShowTitle] = useState(true)
-
-	useEffect(() => {
-	}, []);
 
 	const handleChange = (event) => {
 		setColumns(event.target.value);
@@ -115,21 +147,21 @@ const App = () => {
 
 	const generateSections = (num, showTitle) => {
 		let nums = Array(num).fill().map((x, i) => i)
-		let sections = nums.map(a => {
+		let s = nums.map(a => {
 			return (
-				<Section name={a} max_columns={colums} number={a} showTitle={showTitle}>
+				<Section name={a} number={a} showTitle={showTitle}>
 					{randomCard()}
 				</Section>
 			)
 		});
-		return sections
+		return s
 	}
 
 	return (
 		<div>
 			<div style={{ padding: 10, backgroundColor: "#161B1C" }}>
 				<span style={{ color: "white", padding: 10, fontSize: 14 }}>Columns:</span>
-				<select style={{ color: "white", backgroundColor: "#161B1C" }} value={colums} onChange={handleChange}>
+				<select style={{ color: "white", backgroundColor: "#161B1C" }} value={columns} onChange={handleChange}>
 					<option value="1" >1</option>
 					<option value="2" >2</option>
 					<option value="3" >3</option>
@@ -150,9 +182,9 @@ const App = () => {
 					<option value={false} >No</option>
 				</select>
 			</div>
-			<div class={style.container} style={{ gridTemplateColumns: `repeat(` + colums + `, 1fr)` }} id="app">
+			<Grid cols={columns}>
 				{generateSections(cardNum, showTitle)}
-			</div>
+			</Grid>
 		</div >
 	);
 }

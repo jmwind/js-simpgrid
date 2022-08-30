@@ -39,6 +39,11 @@
     height: 1.1em;
 }
 
+.box_header_title {
+    flex: 1 1 auto;
+    color: #FFFFFF;
+}
+
 .box_header_icons:hover {
     cursor: pointer;
 }
