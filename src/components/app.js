@@ -48,7 +48,7 @@ const NumberCard = (props) => {
 	)
 }
 
-const Section = ({ name, number, children, max_columns, expanded }) => {
+const Section = ({ name, number, children, max_columns, expanded, showTitle }) => {
 	const [order, setOrder] = useState(number);
 	const [span, setSpan] = useState(expanded);
 	const [movedBack, setMovedBack] = useState(false)
@@ -77,7 +77,7 @@ const Section = ({ name, number, children, max_columns, expanded }) => {
 
 	return (
 		<div class={style.box} style={{ padding: 5, order: `${order}`, gridArea: `auto / auto / span ${span} / span ${span}` }} >
-			<div class={style.box_header} style={{ padding: "10px", color: "white", backgroundColor: "grey" }}>
+			{showTitle && <div class={style.box_header} style={{ padding: "10px", color: "white", backgroundColor: "grey" }}>
 				<div style={{ flex: "1 1 auto" }}>
 					<button onClick={() => reorder(-1)}>{"<"}</button>
 					<button onClick={() => reorder(1)}>{">"}</button>
@@ -85,6 +85,7 @@ const Section = ({ name, number, children, max_columns, expanded }) => {
 				<div style={{ color: "white" }}>Widget {name}</div>
 				<div style={{ marginLeft: 6 }}><button onClick={resize}>{span == 1 ? "+" : "-"}</button></div>
 			</div>
+			}
 			{children}
 		</div>
 	)
@@ -97,6 +98,7 @@ Section.defaultProps = {
 const App = () => {
 	const [colums, setColumns] = useState(3)
 	const [cardNum, setCardNum] = useState(10)
+	const [showTitle, setShowTitle] = useState(true)
 
 	useEffect(() => {
 	}, []);
@@ -109,11 +111,11 @@ const App = () => {
 		setCardNum(parseInt(event.target.value));
 	};
 
-	const generateSections = (num) => {
+	const generateSections = (num, showTitle) => {
 		let nums = Array(num).fill().map((x, i) => i)
 		let sections = nums.map(a => {
 			return (
-				<Section name={a} max_columns={colums} number={a}>
+				<Section name={a} max_columns={colums} number={a} showTitle={showTitle}>
 					{randomCard()}
 				</Section>
 			)
@@ -140,11 +142,16 @@ const App = () => {
 					<option value="25" >25</option>
 					<option value="40" >40</option>
 				</select>
+				<span style={{ padding: 10, fontSize: 14 }}>Show Titles:</span>
+				<select value={showTitle} onChange={(event) => setShowTitle(event.target.value == "true")}>
+					<option value={true} >Yes</option>
+					<option value={false} >No</option>
+				</select>
 			</div>
 			<div class={style.container} style={{ gridTemplateColumns: `repeat(` + colums + `, 1fr)` }} id="app">
-				{generateSections(cardNum)}
+				{generateSections(cardNum, showTitle)}
 			</div>
-		</div>
+		</div >
 	);
 }
 
