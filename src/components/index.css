@@ -25,14 +25,24 @@
     border-style: solid;
     border-radius: 6px;
     border-color: #2b2f30;
+    background-color: #2b2f30;
 }
 
 .box_header {
     display: flex;
-    padding: "4px";
+    padding: 8px;
     background-color: #2b2f30;
 }
 
 .box_header_icons {
-    height: 1.25em;
+    display: none;
+    height: 1.1em;
+}
+
+.box_header_icons:hover {
+    cursor: pointer;
+}
+
+.box:hover .box_header_icons {
+    display: block;
 }
