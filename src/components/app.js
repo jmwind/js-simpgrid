@@ -1,5 +1,9 @@
 import style from './index.css';
 import { useEffect, useState } from 'preact/hooks';
+import ResizeIcon from '../assets/icons/move.svg'
+import MinimizeIcon from '../assets/icons/minimize.svg'
+import MoveLeftIcon from '../assets/icons/left.svg'
+import MoveRightIcon from '../assets/icons/right.svg'
 
 const colors = ['red', 'blue', 'orange', 'purple', 'green', 'black', 'pink', 'grey'];
 
@@ -27,7 +31,7 @@ const Card = (props) => {
 		<svg
 			style={{ fill: "red", width: "100%", height: "100%" }}
 			viewBox={[-100, -100, 200, 200].join(" ")} >
-			<rect x="-100" y={-100} width="200" height="200" fill="white" />
+			<rect x="-100" y={-100} width="200" height="200" fill="#2b2f30" />
 			<circle r="40" cx="-0" cy="-0" fill={color} />
 		</svg >
 	)
@@ -42,8 +46,8 @@ const NumberCard = (props) => {
 	}, []);
 
 	return (
-		<div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", width: "100%", backgroundColor: "white" }}>
-			<span style={{ flex: "1", backgroundColor: "white", textAlign: "center", fontSize: "10vw" }}>{val}</span>
+		<div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", width: "100%", backgroundColor: "#2b2f30" }}>
+			<span style={{ flex: "1", color: "white", textAlign: "center", fontSize: "10vw" }}>{val}</span>
 		</div>
 	)
 }
@@ -76,14 +80,12 @@ const Section = ({ name, number, children, max_columns, expanded, showTitle }) =
 	}
 
 	return (
-		<div class={style.box} style={{ padding: 5, order: `${order}`, gridArea: `auto / auto / span ${span} / span ${span}` }} >
-			{showTitle && <div class={style.box_header} style={{ padding: "10px", color: "white", backgroundColor: "grey" }}>
-				<div style={{ flex: "1 1 auto" }}>
-					<button onClick={() => reorder(-1)}>{"<"}</button>
-					<button onClick={() => reorder(1)}>{">"}</button>
-				</div>
-				<div style={{ color: "white" }}>Widget {name}</div>
-				<div style={{ marginLeft: 6 }}><button onClick={resize}>{span == 1 ? "+" : "-"}</button></div>
+		<div class={style.box} style={{ order: `${order}`, gridArea: `auto / auto / span ${span} / span ${span}` }} >
+			{showTitle && <div class={style.box_header}>
+				<div style={{ flex: "1 1 auto", color: "white" }}>Widget {name}</div>
+				<img onClick={resize} class={style.box_header_icons} src={MoveLeftIcon} />
+				<img onClick={resize} class={style.box_header_icons} src={MoveRightIcon} />
+				<img onClick={resize} class={style.box_header_icons} src={span == 1 ? ResizeIcon : MinimizeIcon} />
 			</div>
 			}
 			{children}
@@ -125,9 +127,9 @@ const App = () => {
 
 	return (
 		<div>
-			<div style={{ padding: 10 }}>
-				<span style={{ padding: 10, fontSize: 14 }}>Columns:</span>
-				<select value={colums} onChange={handleChange}>
+			<div style={{ padding: 10, backgroundColor: "#161B1C" }}>
+				<span style={{ color: "white", padding: 10, fontSize: 14 }}>Columns:</span>
+				<select style={{ color: "white", backgroundColor: "#161B1C" }} value={colums} onChange={handleChange}>
 					<option value="1" >1</option>
 					<option value="2" >2</option>
 					<option value="3" >3</option>
