@@ -51,12 +51,20 @@ const NumberCard = (props) => {
 const Section = ({ name, number, children, max_columns, expanded }) => {
 	const [order, setOrder] = useState(number);
 	const [span, setSpan] = useState(expanded);
+	const [movedBack, setMovedBack] = useState(false)
+	const [movedFoward, setMovedForward] = useState(false)
 
 	const reorder = (units) => {
-		if (order == 0) {
-			units++;
+		let current = order;
+		if (units < 0 && !movedBack) {
+			units--
+			setMovedBack(true)
+		} else if (units >= 0 && !movedBack) {
+			units++
+			setMovedBack(false)
 		}
 		setOrder(order + units);
+		console.log(`Moving item ${number} from ${current} to ${order + units}`)
 	}
 
 	const resize = () => {
