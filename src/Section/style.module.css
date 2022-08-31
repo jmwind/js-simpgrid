@@ -14,6 +14,10 @@
     cursor: pointer;
 }
 
+.box:active {
+    cursor: grabbing;
+}
+
 .box_dropzone {
     position: absolute;
     display: none;
@@ -34,6 +38,18 @@
     height: 1.2em;
 }
 
+.box_header_drag {
+    display: block;
+    height: 1em;
+    cursor: nwse-resize;
+}
+
+.box_header_drag:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}
+
 .box_header_title {
     flex: 1 1 auto;
     color: #FFFFFF;
@@ -45,12 +61,4 @@
 
 .box:hover .box_header_icons {
     display: block;
-}
-
-.number_card {
-    display: flex;
-    justify-content: center;
-    height: 100%;
-    width: 100%;
-    background-color: #2b2f30;
 }

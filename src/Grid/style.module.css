@@ -8,4 +8,5 @@
     padding-right: 10px;
     transition: 2s;
     background-color: #161B1C;
+    transition: all 1.5s;
 }
