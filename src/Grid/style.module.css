@@ -1,0 +1,11 @@
+.container {
+    display: grid;
+    height: 100%;
+    width: 100%;
+    grid-auto-flow: dense;
+    gap: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    transition: 2s;
+    background-color: #161B1C;
+}

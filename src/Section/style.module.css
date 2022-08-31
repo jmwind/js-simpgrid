@@ -1,16 +1,3 @@
-.container {
-    height: 100%;
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-auto-flow: dense;
-    gap: 5px;
-    padding-left: 10px;
-    padding-right: 10px;
-    transition: 2s;
-    background-color: #161B1C;
-}
-
 .box {
     display: flex;
     flex-direction: column;
@@ -67,5 +54,3 @@
     width: 100%;
     background-color: #2b2f30;
 }
-
-.number_card_number {}
