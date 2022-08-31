@@ -96,18 +96,12 @@ const Section = ({ name, grid_order, children, show_title, reorder_func }) => {
 		reorder_func(dropId, order)
 	}
 
-	const displayDrop = dragOver ? "block" : "none"
+	const brightness = dragOver ? "brightness(150%)" : ""
 
 	return (
-		<div draggable onDragStart={handleDragStart} onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragExit} class={style.box} style={{ order: `${order}`, gridArea: `auto / auto / span ${span} / span ${span}` }} >
-			<div style={{ position: "relative" }}>
-				<div class={style.box_dropzone} style={{ display: displayDrop }}>
-				</div>
-			</div>
+		<div draggable onDragStart={handleDragStart} onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragExit} class={style.box} style={{ filter: `${brightness}`, order: `${order}`, gridArea: `auto / auto / span ${span} / span ${span}` }} >
 			{show_title && <div class={style.box_header}>
 				<div class={style.box_header_title}>{name}</div>
-				<img onClick={moveBack} class={style.box_header_icons} src={MoveLeftIcon} />
-				<img onClick={moveFwd} class={style.box_header_icons} src={MoveRightIcon} />
 				<img onClick={resize} class={style.box_header_icons} src={span == 1 ? ResizeIcon : MinimizeIcon} />
 			</div>
 			}
