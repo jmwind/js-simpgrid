@@ -21,7 +21,7 @@ const randomCard = () => {
 	}
 }
 
-const Card = (props) => {
+const Card = () => {
 	const [color, setColor] = useState(colors[0]);
 
 	useEffect(() => {
@@ -29,16 +29,14 @@ const Card = (props) => {
 	}, []);
 
 	return (
-		<svg
-			style={{ fill: "red", width: "100%", height: "100%" }}
-			viewBox={[-100, -100, 200, 200].join(" ")} >
+		<svg style={{ fill: "red", width: "100%", height: "100%" }} viewBox={[-100, -100, 200, 200].join(" ")} >
 			<rect x="-100" y={-100} width="200" height="200" fill="#2b2f30" />
 			<circle r="40" cx="-0" cy="-0" fill={color} />
 		</svg >
 	)
 }
 
-const NumberCard = (props) => {
+const NumberCard = () => {
 	const [val, setVal] = useState("0.0");
 
 	useEffect(() => {
@@ -47,17 +45,19 @@ const NumberCard = (props) => {
 	}, []);
 
 	return (
-		<div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", width: "100%", backgroundColor: "#2b2f30" }}>
+		<div class={style.number_card}>
 			<span style={{ flex: "1", color: "white", textAlign: "center", fontSize: "10vw" }}>{val}</span>
 		</div>
 	)
 }
 
-const Section = ({ name, number, children, expanded, showTitle, reorder_func }) => {
-	const [order, setOrder] = useState(number)
-	const [span, setSpan] = useState(expanded)
+const Section = ({ name, grid_order, children, show_title, reorder_func }) => {
+	const [order, setOrder] = useState(grid_order)
+	const [span, setSpan] = useState(1)
+	const [dragOver, setDragOver] = useState(false)
+	const [dragged, setDragged] = useState(null)
 
-	useEffect(() => { setOrder(number) }, [number])
+	useEffect(() => { setOrder(grid_order) }, [grid_order])
 
 	const resize = () => {
 		if (span == 1) {
@@ -68,17 +68,44 @@ const Section = ({ name, number, children, expanded, showTitle, reorder_func }) 
 	}
 
 	const moveFwd = () => {
-		reorder_func(order, 1)
+		reorder_func(order, order + 1)
 	}
 
 	const moveBack = () => {
-		reorder_func(order, -1)
+		reorder_func(order, order - 1)
 	}
 
+	const handleDragStart = (event) => {
+		event.dataTransfer.setData("source-id", order)
+	}
+
+	const handleDragOver = (event) => {
+		setDragOver(true)
+		event.preventDefault();
+	}
+
+	const handleDragExit = () => {
+		setDragOver(false)
+	}
+
+	const handleDrop = (event) => {
+		const dropId = parseInt(event.dataTransfer.getData("source-id"))
+		event.stopPropagation();
+		event.preventDefault();
+		setDragOver(false)
+		reorder_func(dropId, order)
+	}
+
+	const displayDrop = dragOver ? "block" : "none"
+
 	return (
-		<div class={style.box} style={{ order: `${order}`, gridArea: `auto / auto / span ${span} / span ${span}` }} >
-			{showTitle && <div class={style.box_header}>
-				<div class={style.box_header_title}>Widget {name}</div>
+		<div draggable onDragStart={handleDragStart} onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragExit} class={style.box} style={{ order: `${order}`, gridArea: `auto / auto / span ${span} / span ${span}` }} >
+			<div style={{ position: "relative" }}>
+				<div class={style.box_dropzone} style={{ display: displayDrop }}>
+				</div>
+			</div>
+			{show_title && <div class={style.box_header}>
+				<div class={style.box_header_title}>{name}</div>
 				<img onClick={moveBack} class={style.box_header_icons} src={MoveLeftIcon} />
 				<img onClick={moveFwd} class={style.box_header_icons} src={MoveRightIcon} />
 				<img onClick={resize} class={style.box_header_icons} src={span == 1 ? ResizeIcon : MinimizeIcon} />
@@ -87,10 +114,6 @@ const Section = ({ name, number, children, expanded, showTitle, reorder_func }) 
 			{children}
 		</div>
 	)
-}
-
-Section.defaultProps = {
-	expanded: 1
 }
 
 const Grid = ({ cols, children }) => {
@@ -102,7 +125,7 @@ const Grid = ({ cols, children }) => {
 	const findChild = (index) => {
 		if (children) {
 			for (let i = 0; i < children.length; i++) {
-				if (children[i].props.number == index) {
+				if (children[i].props.grid_order == index) {
 					return children[i]
 				}
 			}
@@ -110,13 +133,12 @@ const Grid = ({ cols, children }) => {
 		return null
 	}
 
-	const reorder = (index, delta) => {
-		let new_index = index + delta;
+	const reorder = (index, new_index) => {
 		let first = findChild(index)
 		let next = findChild(new_index)
 		if (first && next) {
-			first.props.number = index + delta
-			next.props.number = index
+			first.props.grid_order = new_index
+			next.props.grid_order = index
 			setOrders(orders + 1)
 		}
 	}
@@ -149,7 +171,7 @@ const App = () => {
 		let nums = Array(num).fill().map((x, i) => i)
 		let s = nums.map(a => {
 			return (
-				<Section name={a} number={a} showTitle={showTitle}>
+				<Section name={`Widget ${a}`} grid_order={a} show_title={showTitle}>
 					{randomCard()}
 				</Section>
 			)
