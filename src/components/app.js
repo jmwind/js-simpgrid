@@ -169,7 +169,7 @@ const App = () => {
 
 	const createSection = (name, index, component) => {
 		return (
-			<Section name={name} grid_order={index}>
+			<Section name={name} grid_order={index} show_title={showTitle}>
 				{component}
 			</Section>
 		)
@@ -181,7 +181,8 @@ const App = () => {
 		createSection("TWS", 2, <NumberCard />),
 		createSection("TWA", 3, <NumberCard />),
 		createSection("SOG", 4, <NumberCard />),
-		createSection("SOG", 5, <Card />),
+		createSection("Graphic 1", 5, <Card />),
+		createSection("Graphic 2", 6, <Card />)
 	]
 
 	const handleChange = (event) => {
