@@ -1,6 +1,6 @@
 {
   "name": "sk-jsui",
-  "short_name": "sk-jsui",
+  "short_name": "sk-jsui-grid",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",

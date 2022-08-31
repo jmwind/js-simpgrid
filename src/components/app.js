@@ -1,5 +1,5 @@
 import style from './index.css';
-import { useCallback, useEffect, useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 import { cloneElement } from 'preact';
 import ResizeIcon from '../assets/icons/move.svg'
 import MinimizeIcon from '../assets/icons/minimize.svg'
@@ -45,8 +45,9 @@ const NumberCard = () => {
 	}, []);
 
 	return (
-		<div class={style.number_card}>
-			<span style={{ flex: "1", color: "white", textAlign: "center", fontSize: "10vw" }}>{val}</span>
+		<div class={style.number_card} style={{ flexDirection: 'column' }}>
+			<span style={{ color: "white", textAlign: "center", fontSize: "10vw" }}>{val}</span>
+			<span style={{ color: "white", paddingRight: 20, textAlign: "right", fontSize: "1.5vw" }}>Kts</span>
 		</div>
 	)
 }
@@ -55,7 +56,6 @@ const Section = ({ name, grid_order, children, show_title, reorder_func }) => {
 	const [order, setOrder] = useState(grid_order)
 	const [span, setSpan] = useState(1)
 	const [dragOver, setDragOver] = useState(false)
-	const [dragged, setDragged] = useState(null)
 
 	useEffect(() => { setOrder(grid_order) }, [grid_order])
 
@@ -116,6 +116,10 @@ const Section = ({ name, grid_order, children, show_title, reorder_func }) => {
 	)
 }
 
+Section.defaultProps = {
+	show_title: true,
+}
+
 const Grid = ({ cols, children }) => {
 	const [columns, setColumns] = useState(cols)
 	const [orders, setOrders] = useState(0)
@@ -154,10 +158,31 @@ const Grid = ({ cols, children }) => {
 	)
 }
 
+Grid.defaultProps = {
+	cols: 3
+}
+
 const App = () => {
 	const [columns, setColumns] = useState(3)
 	const [cardNum, setCardNum] = useState(10)
 	const [showTitle, setShowTitle] = useState(true)
+
+	const createSection = (name, index, component) => {
+		return (
+			<Section name={name} grid_order={index}>
+				{component}
+			</Section>
+		)
+	}
+
+	const sections = [
+		createSection("AWS", 0, <NumberCard />),
+		createSection("AWA", 1, <NumberCard />),
+		createSection("TWS", 2, <NumberCard />),
+		createSection("TWA", 3, <NumberCard />),
+		createSection("SOG", 4, <NumberCard />),
+		createSection("SOG", 5, <Card />),
+	]
 
 	const handleChange = (event) => {
 		setColumns(event.target.value);
@@ -171,7 +196,7 @@ const App = () => {
 		let nums = Array(num).fill().map((x, i) => i)
 		let s = nums.map(a => {
 			return (
-				<Section name={`Widget ${a}`} grid_order={a} show_title={showTitle}>
+				<Section name={`Widget ${a}`} grid_order={a}>
 					{randomCard()}
 				</Section>
 			)
@@ -205,7 +230,7 @@ const App = () => {
 				</select>
 			</div>
 			<Grid cols={columns}>
-				{generateSections(cardNum, showTitle)}
+				{sections}
 			</Grid>
 		</div >
 	);

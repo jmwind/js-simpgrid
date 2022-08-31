@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "sk-jsui",
+  "name": "sk-jsui-grid",
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
