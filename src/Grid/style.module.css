@@ -3,10 +3,8 @@
     height: 100%;
     width: 100%;
     grid-auto-flow: dense;
-    gap: 5px;
-    padding-left: 10px;
-    padding-right: 10px;
-    transition: 2s;
+    gap: 15px;
+    padding-left: 20px;
+    padding-right: 20px;
     background-color: #161B1C;
-    transition: all 1.5s;
 }

@@ -3,7 +3,6 @@
     flex-direction: column;
     grid-template-rows: 1fr auto;
     border-width: 3px;
-    margin: 5px;
     border-style: solid;
     border-radius: 6px;
     border-color: #2b2f30;

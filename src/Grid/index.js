@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'preact/hooks'
+import { useEffect, useState, useRef } from 'preact/hooks'
 import { cloneElement } from 'preact'
 import PropTypes from 'prop-types'
 import styles from './style.module.css'
@@ -6,6 +6,7 @@ import styles from './style.module.css'
 const Grid = ({ cols, children }) => {
     const [columns, setColumns] = useState(cols)
     const [orders, setOrders] = useState(0)
+    const gridRef = useRef()
 
     useEffect(() => {
         setColumns(cols)
@@ -37,7 +38,7 @@ const Grid = ({ cols, children }) => {
     });
 
     return (
-        <div class={styles.container} style={{ gridTemplateColumns: `repeat(` + columns + `, 1fr)` }}>
+        <div ref={gridRef} class={styles.container} style={{ gridTemplateColumns: `repeat(` + columns + `, 1fr)` }}>
             {childrenWithProps}
         </div>
     )

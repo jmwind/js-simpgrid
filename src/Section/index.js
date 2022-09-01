@@ -13,11 +13,16 @@ const Section = ({ name, grid_order, children, show_title, reorder_func }) => {
     const [offsetX, setOffsetX] = useState(0)
     const [offsetY, setOffsetY] = useState(0)
     const [dragResize, setDragResize] = useState(false)
+    const [dragMove, setDragMove] = useState(false)
     const [dragWidth, setDragWidth] = useState(0)
     const [origWidth, setOrigWidth] = useState(0)
     const boxRef = useRef()
 
     useEffect(() => { setOrder(grid_order) }, [grid_order])
+
+    const isMoveEvent = (event) => {
+        return event.dataTransfer.types[0] == "source-id"
+    }
 
     const resize = () => {
         if (spanx == 1) {
@@ -29,58 +34,41 @@ const Section = ({ name, grid_order, children, show_title, reorder_func }) => {
         }
     }
 
-    const handleDragStart = (event) => {
-        event.dataTransfer.setData("source-id", order)
+    const handleDragStart = (e) => {
+        e.dataTransfer.setData("source-id", order)
     }
 
-    const handleDragOver = (event) => {
-        if (!dragResize) {
-            event.preventDefault();
+    const handleDragOver = (e) => {
+        if (isMoveEvent(e)) {
+            e.preventDefault();
             setDragOver(true)
         }
     }
 
-    const handleDragExit = () => {
-        setDragOver(false)
+    const handleDragExit = (e) => {
+        if (isMoveEvent(e)) {
+            setDragOver(false)
+        }
     }
 
-    const handleDrop = (event) => {
-        if (!dragResize) {
-            const dropId = parseInt(event.dataTransfer.getData("source-id"))
-            event.stopPropagation();
-            event.preventDefault();
+    const handleDrop = (e) => {
+        console.log("Event DROP START")
+        const dropId = parseInt(e.dataTransfer.getData("source-id"))
+        console.log("Event DROP: " + dropId)
+        if (isMoveEvent(e)) {
+            e.stopPropagation();
+            e.preventDefault();
             setDragOver(false)
             reorder_func(dropId, order)
         }
+
     }
 
     const handleResizeDrag = (event) => {
-        if (boxRef) {
-            console.log("box")
-        }
-        let new_spanx = Math.round((event.x - offsetX) / 30)
-        let new_spany = Math.round((event.y - offsetY) / 30)
-        if (new_spanx > 2) {
-            setSpanX(spanx + 1)
-            setOffsetX(event.x)
-        } else if (new_spanx < -2 && spanx > 1) {
-            setSpanX(spanx - 1)
-            setOffsetX(event.x)
-        }
-        if (new_spany > 2) {
-            setSpanY(spany + 1)
-            setOffsetY(event.y)
-        } else if (new_spany < -2 && spany > 1) {
-            setSpanY(spany - 1)
-            setOffsetY(event.y)
-        }
-        let w = origWidth + event.x - offsetX
-        if (spanx == 1 && w < origWidth) {
-            w = origWidth
-        }
-        setDragWidth(w)
-        console.log(`DRAG x: ${event.x} y: ${event.y}`)
-        console.log(`DRAG w: ${w}`)
+        let new_spanx = Math.round((event.x - offsetX))
+        let new_spany = Math.round((event.y - offsetY))
+        let cw = origWidth + event.x
+        setDragWidth(cw)
     }
 
     const handleResizeStart = (event) => {
@@ -103,10 +91,12 @@ const Section = ({ name, grid_order, children, show_title, reorder_func }) => {
         gridArea: `auto / auto / span ${spany} / span ${spanx}`,
     }
     if (dragResize) {
-        //boxStyle['width'] = dragWidth,
-        boxStyle['borderColor'] = 'red',
+        boxStyle['width'] = dragWidth,
+            boxStyle['borderColor'] = 'red',
             boxStyle['borderStyle'] = 'solid',
             boxStyle['borderWidth'] = 2
+    } else {
+        boxStyle['width'] = "100%"
     }
 
     return (
@@ -127,7 +117,7 @@ const Section = ({ name, grid_order, children, show_title, reorder_func }) => {
 
             {children}
 
-            <img draggable onDragStart={handleResizeStart} onDragEnd={handleDragEnd} onDrag={handleResizeDrag} class={styles.box_header_drag} src={DragIcon} />
+            <img class={styles.box_header_drag} src={DragIcon} />
         </div>
     )
 }
