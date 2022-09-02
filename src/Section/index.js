@@ -13,9 +13,10 @@ const Section = ({ name, grid_order, children, show_title, reorder_func, columns
     const [offsetX, setOffsetX] = useState(0)
     const [offsetY, setOffsetY] = useState(0)
     const [dragResize, setDragResize] = useState(false)
-    const [dragMove, setDragMove] = useState(false)
     const [dragWidth, setDragWidth] = useState(0)
     const [origWidth, setOrigWidth] = useState(0)
+    const [dragHeight, setDragHeight] = useState(0)
+    const [origHeight, setOrigHeight] = useState(0)
     const boxRef = useRef()
 
     useEffect(() => { setOrder(grid_order) }, [grid_order])
@@ -71,16 +72,23 @@ const Section = ({ name, grid_order, children, show_title, reorder_func, columns
         console.log("snap " + newSpan)
     }
 
+    const snapToY = (newY, newSpan) => {
+        setOrigHeight(newY)
+        setSpanY(newSpan)
+        setDragResize(false)
+        console.log("snap " + newSpan)
+    }
+
     const handleResizeDrag = (event) => {
         let gap = 15
         // can happen on drop, a last drag is fired but should be ignored
-        if (event.x == 0 || event.y == 0) {
+        if (!dragResize || event.x == 0 || event.y == 0) {
             return
         }
         let dx = event.x - offsetX
         let dy = event.y - offsetY
+
         let cw = origWidth + (event.x - offsetX)
-        if (!dragResize) return
         if (dx > origWidth / 3 && spanx < columns) {
             cw = origWidth * 2 + gap
             snapToX(cw, spanx + 1)
@@ -90,15 +98,35 @@ const Section = ({ name, grid_order, children, show_title, reorder_func, columns
             snapToX(cw, spanx - 1)
         }
         // dont' allow resize smaller if already at minimum column
-        let resize = true
+        let resizeX = true
         if (spanx == 1 && dx < 0) {
-            resize = false
+            resizeX = false
         }
         if (spanx == columns && dx > 0) {
-            resize = false
+            resizeX = false
         }
-        if (resize) {
+
+        if (resizeX) {
             setDragWidth(cw)
+        }
+
+        let ch = origHeight + (event.y - offsetY)
+        if (dy > origHeight / 3) {
+            ch = origHeight * 2 + gap
+            snapToY(ch, spany + 1)
+
+        } else if (dy < -1 * (origHeight / 3) && spany > 1) {
+            ch = origHeight / 2 - gap
+            snapToY(ch, spany - 1)
+        }
+        // dont' allow resize smaller if already at minimum column
+        let resizeY = true
+        if (spany == 1 && dy < 0) {
+            resizeY = false
+        }
+
+        if (resizeY) {
+            setDragHeight(ch)
         }
     }
 
@@ -107,15 +135,18 @@ const Section = ({ name, grid_order, children, show_title, reorder_func, columns
         setOffsetY(event.y)
         setOrigWidth(boxRef.current.clientWidth)
         setDragWidth(boxRef.current.clientWidth)
+        setOrigHeight(boxRef.current.clientHeight)
+        setDragHeight(boxRef.current.clientHeight)
         setDragResize(true)
     }
 
     const handleDragEnd = (event) => {
         setDragWidth(0)
+        setDragHeight(0)
         setDragResize(false)
     }
 
-    const brightness = dragOver ? "brightness(150%)" : ""
+    const brightness = dragOver || dragResize ? "brightness(150%)" : ""
     let boxStyle = {
         filter: `${brightness}`,
         order: `${order}`,
@@ -123,7 +154,8 @@ const Section = ({ name, grid_order, children, show_title, reorder_func, columns
     }
     if (dragResize) {
         boxStyle['width'] = dragWidth,
-            boxStyle['borderColor'] = 'purple',
+            boxStyle['height'] = dragHeight,
+            boxStyle['borderColor'] = 'grey',
             boxStyle['borderStyle'] = 'solid',
             boxStyle['borderWidth'] = 2
     } else {
