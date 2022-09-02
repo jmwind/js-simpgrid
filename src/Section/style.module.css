@@ -38,11 +38,11 @@
 }
 
 .box_header_drag {
-    display: none;
+    display: block;
     height: 0.8em;
     cursor: nwse-resize;
-    margin-top: "-0.8em";
-    align-self: 'end';
+    margin-top: -0.8em;
+    align-self: end;
 }
 
 .box_header_drag:active {

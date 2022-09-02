@@ -178,7 +178,11 @@ const Section = ({ name, grid_order, children, show_title, reorder_func, columns
 
             {children}
 
-            <img class={styles.box_header_drag} style={{}} onDragStart={handleResizeStart} onDragEnd={handleDragEnd} onDrag={handleResizeDrag} src={DragIcon} />
+            <img class={styles.box_header_drag}
+                onDragStart={handleResizeStart}
+                onDragEnd={handleDragEnd}
+                onDrag={handleResizeDrag}
+                src={DragIcon} />
         </div>
     )
 }

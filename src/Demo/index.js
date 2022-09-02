@@ -44,13 +44,11 @@ const NumberCard = () => {
 
 const App = () => {
     const [columns, setColumns] = useState(3)
-    const [cardNum, setCardNum] = useState(10)
-    const [showTitle, setShowTitle] = useState(true)
     const [sections, setSections] = useState([])
 
     const createSection = (name, index, component) => {
         return (
-            <Section name={name} grid_order={index} show_title={showTitle}>
+            <Section name={name} grid_order={index}>
                 {component}
             </Section>
         )
@@ -62,10 +60,8 @@ const App = () => {
             createSection("AWA", 1, <NumberCard />),
             createSection("Graphic 1", 2, <Card />),
             createSection("TWS", 3, <NumberCard />),
-            createSection("TWA", 4, <NumberCard />),
-            createSection("SOG", 5, <NumberCard />),
-            createSection("Graphic 2", 6, <Card />),
-            createSection("Graphic 3", 7, <Card />)
+            createSection("Graphic 2", 4, <Card />),
+            createSection("Graphic 3", 5, <Card />)
         ]
         setSections(secs)
     }, [])
@@ -74,12 +70,9 @@ const App = () => {
         setColumns(parseInt(event.target.value));
     }
 
-    const handleCardNumChange = (event) => {
-        setCardNum(parseInt(event.target.value));
-    }
-
     const handleNewCardClick = (event) => {
-        const updateSections = [...sections, createSection(`New Card ${sections.length}`, sections.length, <NumberCard />)]
+        const nextCard = Math.random() >= 0.5 ? <NumberCard /> : <Card />
+        const updateSections = [...sections, createSection(`New Card ${sections.length}`, sections.length, nextCard)]
         setSections(updateSections)
     }
 
@@ -95,11 +88,7 @@ const App = () => {
                     <option value="5" >5</option>
                 </select>
                 <span style={{ color: "white", padding: 10, fontSize: 14 }}>Show Titles:</span>
-                <select style={{ color: "white", backgroundColor: "#161B1C" }} value={showTitle} onChange={(event) => setShowTitle(event.target.value == "true")}>
-                    <option value={true} >Yes</option>
-                    <option value={false} >No</option>
-                </select>
-                <button onClick={handleNewCardClick} style={{ marginLeft: 15 }}>New Card</button>
+                <button style={{ color: "white", backgroundColor: "#161B1C", marginLeft: 15 }} onClick={handleNewCardClick}>New Card</button>
             </div>
             <Grid cols={columns}>
                 {sections}
