@@ -34,7 +34,7 @@ const Grid = ({ cols, children }) => {
     }
 
     const childrenWithProps = children.map(child => {
-        return cloneElement(child, { reorder_func: reorder });
+        return cloneElement(child, { reorder_func: reorder, columns: columns });
     });
 
     return (

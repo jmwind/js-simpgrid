@@ -5,7 +5,7 @@ import MinimizeIcon from './icons/minimize.svg'
 import DragIcon from './icons/drag-handle.svg'
 import styles from './style.module.css';
 
-const Section = ({ name, grid_order, children, show_title, reorder_func }) => {
+const Section = ({ name, grid_order, children, show_title, reorder_func, columns }) => {
     const [order, setOrder] = useState(grid_order)
     const [spanx, setSpanX] = useState(1)
     const [spany, setSpanY] = useState(1)
@@ -64,33 +64,42 @@ const Section = ({ name, grid_order, children, show_title, reorder_func }) => {
 
     }
 
+    const snapToX = (newX, newSpan) => {
+        setOrigWidth(newX)
+        setSpanX(newSpan)
+        setDragResize(false)
+        console.log("snap " + newSpan)
+    }
+
     const handleResizeDrag = (event) => {
-        let columns = 3
         let gap = 15
+        // can happen on drop, a last drag is fired but should be ignored
+        if (event.x == 0 || event.y == 0) {
+            return
+        }
         let dx = event.x - offsetX
         let dy = event.y - offsetY
         let cw = origWidth + (event.x - offsetX)
         if (!dragResize) return
         if (dx > origWidth / 3 && spanx < columns) {
             cw = origWidth * 2 + gap
-            setOrigWidth(cw)
-            setOffsetX(event.x)
-            setSpanX(spanx + 1)
-            setDragResize(false)
-            console.log("snap +1 " + dragResize)
+            snapToX(cw, spanx + 1)
+
         } else if (dx < -1 * (origWidth / 3) && spanx > 1) {
             cw = origWidth / 2 - gap
-            setOrigWidth(cw)
-            setOffsetX(event.x)
-            setSpanX(spanx - 1)
-            setDragResize(false)
-            console.log("snap -1 " + dragResize)
+            snapToX(cw, spanx - 1)
         }
         // dont' allow resize smaller if already at minimum column
-        if (spanx == 1 && dx < -5) {
-            cw = origWidth
+        let resize = true
+        if (spanx == 1 && dx < 0) {
+            resize = false
         }
-        setDragWidth(cw)
+        if (spanx == columns && dx > 0) {
+            resize = false
+        }
+        if (resize) {
+            setDragWidth(cw)
+        }
     }
 
     const handleResizeStart = (event) => {
@@ -146,6 +155,7 @@ const Section = ({ name, grid_order, children, show_title, reorder_func }) => {
 
 Section.defaultProps = {
     show_title: true,
+    columns: 3
 }
 
 Section.propTypes = {

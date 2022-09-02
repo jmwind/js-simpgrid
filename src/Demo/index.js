@@ -66,7 +66,7 @@ const App = () => {
     ]
 
     const handleChange = (event) => {
-        setColumns(event.target.value);
+        setColumns(parseInt(event.target.value));
     };
 
     const handleCardNumChange = (event) => {
