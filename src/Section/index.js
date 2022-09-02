@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'preact/hooks';
 import PropTypes from 'prop-types';
 import ResizeIcon from './icons/move.svg'
 import MinimizeIcon from './icons/minimize.svg'
-import DragIcon from './icons/drag-handle.svg'
+import DragIcon from './icons/right.svg'
 import styles from './style.module.css';
 
 const Section = ({ name, grid_order, children, show_title, reorder_func, columns }) => {
@@ -18,11 +18,14 @@ const Section = ({ name, grid_order, children, show_title, reorder_func, columns
     const [dragHeight, setDragHeight] = useState(0)
     const [origHeight, setOrigHeight] = useState(0)
     const boxRef = useRef()
+    const datatx = "source-id"
 
-    useEffect(() => { setOrder(grid_order) }, [grid_order])
+    useEffect(() => {
+        setOrder(grid_order)
+    }, [grid_order])
 
     const isMoveEvent = (event) => {
-        return event.dataTransfer.types[0] == "source-id"
+        return event.dataTransfer.types[0] == datatx
     }
 
     const resize = () => {
@@ -36,7 +39,7 @@ const Section = ({ name, grid_order, children, show_title, reorder_func, columns
     }
 
     const handleDragStart = (e) => {
-        e.dataTransfer.setData("source-id", order)
+        e.dataTransfer.setData(datatx, order)
     }
 
     const handleDragOver = (e) => {
@@ -53,30 +56,25 @@ const Section = ({ name, grid_order, children, show_title, reorder_func, columns
     }
 
     const handleDrop = (e) => {
-        console.log("Event DROP START")
-        const dropId = parseInt(e.dataTransfer.getData("source-id"))
-        console.log("Event DROP: " + dropId)
+        const dropId = parseInt(e.dataTransfer.getData(datatx))
         if (isMoveEvent(e)) {
             e.stopPropagation();
             e.preventDefault();
             setDragOver(false)
             reorder_func(dropId, order)
         }
-
     }
 
     const snapToX = (newX, newSpan) => {
         setOrigWidth(newX)
         setSpanX(newSpan)
         setDragResize(false)
-        console.log("snap " + newSpan)
     }
 
     const snapToY = (newY, newSpan) => {
         setOrigHeight(newY)
         setSpanY(newSpan)
         setDragResize(false)
-        console.log("snap " + newSpan)
     }
 
     const handleResizeDrag = (event) => {
@@ -180,7 +178,7 @@ const Section = ({ name, grid_order, children, show_title, reorder_func, columns
 
             {children}
 
-            <img class={styles.box_header_drag} onDragStart={handleResizeStart} onDragEnd={handleDragEnd} onDrag={handleResizeDrag} src={DragIcon} />
+            <img class={styles.box_header_drag} style={{}} onDragStart={handleResizeStart} onDragEnd={handleDragEnd} onDrag={handleResizeDrag} src={DragIcon} />
         </div>
     )
 }
