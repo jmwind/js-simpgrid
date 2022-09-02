@@ -38,7 +38,7 @@
 }
 
 .box_header_drag {
-    display: block;
+    display: none;
     height: 0.8em;
     cursor: nwse-resize;
     margin-top: -0.8em;
