@@ -65,9 +65,31 @@ const Section = ({ name, grid_order, children, show_title, reorder_func }) => {
     }
 
     const handleResizeDrag = (event) => {
-        let new_spanx = Math.round((event.x - offsetX))
-        let new_spany = Math.round((event.y - offsetY))
-        let cw = origWidth + event.x
+        let columns = 3
+        let gap = 15
+        let dx = event.x - offsetX
+        let dy = event.y - offsetY
+        let cw = origWidth + (event.x - offsetX)
+        if (!dragResize) return
+        if (dx > origWidth / 3 && spanx < columns) {
+            cw = origWidth * 2 + gap
+            setOrigWidth(cw)
+            setOffsetX(event.x)
+            setSpanX(spanx + 1)
+            setDragResize(false)
+            console.log("snap +1 " + dragResize)
+        } else if (dx < -1 * (origWidth / 3) && spanx > 1) {
+            cw = origWidth / 2 - gap
+            setOrigWidth(cw)
+            setOffsetX(event.x)
+            setSpanX(spanx - 1)
+            setDragResize(false)
+            console.log("snap -1 " + dragResize)
+        }
+        // dont' allow resize smaller if already at minimum column
+        if (spanx == 1 && dx < -5) {
+            cw = origWidth
+        }
         setDragWidth(cw)
     }
 
@@ -92,7 +114,7 @@ const Section = ({ name, grid_order, children, show_title, reorder_func }) => {
     }
     if (dragResize) {
         boxStyle['width'] = dragWidth,
-            boxStyle['borderColor'] = 'red',
+            boxStyle['borderColor'] = 'purple',
             boxStyle['borderStyle'] = 'solid',
             boxStyle['borderWidth'] = 2
     } else {
@@ -117,7 +139,7 @@ const Section = ({ name, grid_order, children, show_title, reorder_func }) => {
 
             {children}
 
-            <img class={styles.box_header_drag} src={DragIcon} />
+            <img class={styles.box_header_drag} onDragStart={handleResizeStart} onDragEnd={handleDragEnd} onDrag={handleResizeDrag} src={DragIcon} />
         </div>
     )
 }
