@@ -1,11 +1,12 @@
-import { useEffect, useState, useRef } from 'preact/hooks';
+import { useEffect, useState, useRef, useCallback } from 'preact/hooks';
 import PropTypes from 'prop-types';
 import ResizeIcon from './icons/move.svg'
 import MinimizeIcon from './icons/minimize.svg'
 import DragIcon from './icons/right.svg'
+import TrashIcon from './icons/trash.svg'
 import styles from './style.module.css';
 
-const Section = ({ name, grid_order, children, show_title, reorder_func, columns }) => {
+const Section = ({ name, grid_order, children, show_title, reorder_func, delete_func, columns }) => {
     const [order, setOrder] = useState(grid_order)
     const [spanx, setSpanX] = useState(1)
     const [spany, setSpanY] = useState(1)
@@ -17,6 +18,11 @@ const Section = ({ name, grid_order, children, show_title, reorder_func, columns
     const [origWidth, setOrigWidth] = useState(0)
     const [dragHeight, setDragHeight] = useState(0)
     const [origHeight, setOrigHeight] = useState(0)
+    const handleDelete = useCallback(() => {
+        if (delete_func) {
+            delete_func(order)
+        }
+    })
     const boxRef = useRef()
     const datatx = "source-id"
 
@@ -144,6 +150,8 @@ const Section = ({ name, grid_order, children, show_title, reorder_func, columns
         setDragResize(false)
     }
 
+
+
     const brightness = dragOver || dragResize ? "brightness(150%)" : ""
     let boxStyle = {
         filter: `${brightness}`,
@@ -174,6 +182,7 @@ const Section = ({ name, grid_order, children, show_title, reorder_func, columns
 
             {show_title && <div class={styles.box_header}>
                 <div class={styles.box_header_title}>{name}</div>
+                <img onClick={handleDelete} class={styles.box_header_icons} src={TrashIcon} />
                 <img onClick={resize} class={styles.box_header_icons} src={spanx == 1 ? ResizeIcon : MinimizeIcon} />
             </div>}
 

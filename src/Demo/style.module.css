@@ -38,6 +38,7 @@ body {
 .number_card {
     display: flex;
     justify-content: center;
+    flex-direction: column;
     height: 100%;
     width: 100%;
     background-color: #2b2f30;

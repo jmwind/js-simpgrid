@@ -1,5 +1,5 @@
 import style from './style.module.css'
-import { useEffect, useState } from 'preact/hooks'
+import { useEffect, useState, useRef } from 'preact/hooks'
 import Grid from '../Grid'
 import Section from '../Section'
 import SkClient from 'sk-jsclient/sk-client';
@@ -42,7 +42,7 @@ const NumberCard = () => {
     }, []);
 
     return (
-        <div class={style.number_card} style={{ flexDirection: 'column' }}>
+        <div class={style.number_card}>
             <span style={{ color: "white", textAlign: "center", fontSize: "10vw" }}>{val}</span>
             <span style={{ color: "white", paddingRight: 20, textAlign: "right", fontSize: "1.5vw" }}>Kts</span>
         </div>
@@ -53,10 +53,23 @@ const App = () => {
     const [columns, setColumns] = useState(3)
     const [sections, setSections] = useState([])
     const [metrics, setMetrics] = useState(SkData.newMetrics());
+    const sectionsRef = useRef()
 
-    const createSection = (name, index, component) => {
-        return (
-            <Section name={name} grid_order={index}>
+    sectionsRef.current = sections
+
+    const deleteSection = (id) => {
+        console.log("delete me: " + id)
+        const updateSections = [...sectionsRef.current]
+        updateSections.splice(id, 1)
+        for (let i = 0; i < updateSections.length; i++) {
+            updateSections[i].props.grid_order = i
+        }
+        setSections(updateSections)
+    }
+
+    const addSection = (array, name, component) => {
+        array.push(
+            <Section name={name} grid_order={array.length} delete_func={deleteSection}>
                 {component}
             </Section>
         )
@@ -66,23 +79,25 @@ const App = () => {
         return new WebSocket(url);
     }
 
+    const initDefaultCards = () => {
+        let secs = []
+        addSection(secs, "Rando", <NumberCard />)
+        addSection(secs, "Rando", <NumberCard />)
+        addSection(secs, "Rando", <NumberCard />)
+        addSection(secs, "Rando", <Card />)
+        addSection(secs, "Rando", <NumberCard />)
+        addSection(secs, "AWA", <WindDirection metrics={metrics} />)
+        addSection(secs, "Polar %", <PolarRatio metrics={metrics} />)
+        addSection(secs, "SOG", <BaseMetric metrics={metrics} metric_name={SkData.SOG} />)
+        setSections(secs)
+    }
+
     useEffect(() => {
         let client = new SkClient(createWebsocket);
         client.setState(metrics);
         client.setPolars(SkPolars.readFromFileContents(CATALINA_36_POLARS));
         client.connect();
-        let secs = [
-            createSection("Rando", 0, <NumberCard />),
-            createSection("Brando", 1, <NumberCard />),
-            createSection("Graphic 1", 2, <Card />),
-            createSection("Numbs", 3, <NumberCard />),
-            createSection("Graphic 2", 4, <Card />),
-            createSection("Graphic 3", 5, <Card />),
-            createSection("AWA", 6, <WindDirection metrics={metrics} />),
-            createSection("Polar %", 7, <PolarRatio metrics={metrics} />),
-            createSection("SOG", 8, <BaseMetric metrics={metrics} metric_name={SkData.SOG} />),
-        ]
-        setSections(secs)
+        initDefaultCards()
         return () => {
             client.off('delta');
             client.disconnect();
@@ -95,7 +110,8 @@ const App = () => {
 
     const handleNewCardClick = (event) => {
         const nextCard = Math.random() >= 0.5 ? <NumberCard /> : <Card />
-        const updateSections = [...sections, createSection(`New Card ${sections.length}`, sections.length, nextCard)]
+        const updateSections = [...sections]
+        addSection(updateSections, nextCard)
         setSections(updateSections)
     }
 
