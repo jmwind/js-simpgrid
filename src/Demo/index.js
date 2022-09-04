@@ -2,6 +2,11 @@ import style from './style.module.css'
 import { useEffect, useState } from 'preact/hooks'
 import Grid from '../Grid'
 import Section from '../Section'
+import SkClient from 'sk-jsclient/sk-client';
+import { SkData, SkPolars, CATALINA_36_POLARS } from 'sk-jsclient/sk-data';
+import WindDirection from '../WindDirection';
+import PolarRatio from '../PolarRatio';
+import BaseMetric from '../BaseMetric';
 
 const colors = ['red', 'blue', 'orange', 'purple', 'green', 'black', 'pink', 'grey'];
 
@@ -15,7 +20,9 @@ const Card = () => {
 
     useEffect(() => {
         let timer = setInterval(() => setColor(randomColor()), 500);
-        return () => clearInterval(timer);
+        return () => {
+            clearInterval(timer);
+        }
     }, []);
 
     return (
@@ -45,6 +52,7 @@ const NumberCard = () => {
 const App = () => {
     const [columns, setColumns] = useState(3)
     const [sections, setSections] = useState([])
+    const [metrics, setMetrics] = useState(SkData.newMetrics());
 
     const createSection = (name, index, component) => {
         return (
@@ -54,16 +62,31 @@ const App = () => {
         )
     }
 
+    const createWebsocket = (url) => {
+        return new WebSocket(url);
+    }
+
     useEffect(() => {
+        let client = new SkClient(createWebsocket);
+        client.setState(metrics);
+        client.setPolars(SkPolars.readFromFileContents(CATALINA_36_POLARS));
+        client.connect();
         let secs = [
-            createSection("AWS", 0, <NumberCard />),
-            createSection("AWA", 1, <NumberCard />),
+            createSection("Rando", 0, <NumberCard />),
+            createSection("Brando", 1, <NumberCard />),
             createSection("Graphic 1", 2, <Card />),
-            createSection("TWS", 3, <NumberCard />),
+            createSection("Numbs", 3, <NumberCard />),
             createSection("Graphic 2", 4, <Card />),
-            createSection("Graphic 3", 5, <Card />)
+            createSection("Graphic 3", 5, <Card />),
+            createSection("AWA", 6, <WindDirection metrics={metrics} />),
+            createSection("Polar %", 7, <PolarRatio metrics={metrics} />),
+            createSection("SOG", 8, <BaseMetric metrics={metrics} metric_name={SkData.SOG} />),
         ]
         setSections(secs)
+        return () => {
+            client.off('delta');
+            client.disconnect();
+        }
     }, [])
 
     const handleChange = (event) => {

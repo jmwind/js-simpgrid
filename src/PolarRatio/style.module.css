@@ -1,0 +1,9 @@
+.container {
+    color: var(--text-primary);
+    height: 100%;
+    flex: 1 1 auto;
+}
+
+.h1 {
+    color: var(--text-primary);
+}

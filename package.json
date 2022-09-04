@@ -1,7 +1,7 @@
 {
-  "private": true,
-  "name": "js-simpgrid",
-  "version": "0.0.1",
+  "name": "@jmwind/js-simpgrid",
+  "description": "Simple dashboard widgets that resize / move without much fluff",
+  "version": "0.0.3",
   "license": "MIT",
   "scripts": {
     "build": "preact build",
@@ -16,6 +16,9 @@
       "build/"
     ]
   },
+  "exports": {
+    ".": "./src/index.js"
+  },
   "devDependencies": {
     "enzyme": "^3.10.0",
     "enzyme-adapter-preact-pure": "^2.0.0",
@@ -27,6 +30,7 @@
     "sirv-cli": "1.0.3"
   },
   "dependencies": {
+    "d3-shape": "^3.1.0",
     "preact": "^10.3.2",
     "preact-render-to-string": "^5.1.4",
     "preact-router": "^3.2.1"
