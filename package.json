@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "sk-jsui-grid",
+  "name": "js-simpgrid",
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
