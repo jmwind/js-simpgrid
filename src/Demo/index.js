@@ -127,7 +127,7 @@ const App = () => {
             case DEMO_METRIC: return { name: "Demo Metric", item: <NumberCard /> }
             case DEMO_SVG: return { name: "SVG", item: <Card /> }
             default:
-                return { name: newSectionType, item: <BaseMetric metrics={metrics} metric_name={newSectionType} /> }
+                return { name: metrics[newSectionType].nameMetric, item: <BaseMetric metrics={metrics} metric_name={newSectionType} /> }
         }
     }
 
