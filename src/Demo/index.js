@@ -43,7 +43,7 @@ const NumberCard = () => {
 
     return (
         <div class={style.number_card}>
-            <span style={{ color: "white", textAlign: "center", fontSize: "10vw" }}>{val}</span>
+            <span style={{ color: "white", textAlign: "center", fontSize: "18vw" }}>{val}</span>
             <span style={{ color: "white", paddingRight: 20, textAlign: "right", fontSize: "1.5vw" }}>Kts</span>
         </div>
     )
@@ -72,7 +72,6 @@ const App = () => {
     }, [sections])
 
     const deleteSection = (id) => {
-        console.log("delete me: " + id)
         const updateSections = [...sectionsRef.current]
         updateSections.splice(id, 1)
         for (let i = 0; i < updateSections.length; i++) {

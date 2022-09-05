@@ -17,8 +17,8 @@ const BaseMetric = (props) => {
 
     return (
         <div class={style.number_card}>
-            <span style={{ color: "white", textAlign: "center", fontSize: "10vw" }}>{m_val}</span>
-            <span style={{ color: "white", paddingRight: 20, textAlign: "right", fontSize: "1.5vw" }}>{m.nameUnit}</span>
+            <span class={style.number_middle}>{m_val}</span>
+            <span class={style.number_unit}>{m.nameUnit}</span>
         </div>
     );
 }

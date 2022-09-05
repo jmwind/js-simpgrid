@@ -6,3 +6,16 @@
     width: 100%;
     background-color: #2b2f30;
 }
+
+.number_middle {
+    color: white;
+    text-align: center;
+    font-size: 18vw;
+}
+
+.number_unit {
+    color: white;
+    padding-right: 20;
+    text-align: right;
+    font-size: 3.5vw;
+}
