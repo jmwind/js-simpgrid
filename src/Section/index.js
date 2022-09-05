@@ -6,10 +6,10 @@ import DragIcon from './icons/right.svg'
 import TrashIcon from './icons/trash.svg'
 import styles from './style.module.css';
 
-const Section = ({ name, grid_order, children, show_title, reorder_func, delete_func, columns }) => {
+const Section = ({ name, span_x, span_y, grid_order, children, show_title, reorder_func, delete_func, columns }) => {
     const [order, setOrder] = useState(grid_order)
-    const [spanx, setSpanX] = useState(1)
-    const [spany, setSpanY] = useState(1)
+    const [spanx, setSpanX] = useState(span_x)
+    const [spany, setSpanY] = useState(span_y)
     const [dragOver, setDragOver] = useState(false)
     const [offsetX, setOffsetX] = useState(0)
     const [offsetY, setOffsetY] = useState(0)
@@ -199,6 +199,8 @@ const Section = ({ name, grid_order, children, show_title, reorder_func, delete_
 
 Section.defaultProps = {
     show_title: true,
+    span_x: 1,
+    span_y: 1,
     columns: 3
 }
 

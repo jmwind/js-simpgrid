@@ -20,13 +20,14 @@ const PolarRatio = (props) => {
     let percent = awa;
     let step = 5;
 
+
     const ticks = (increments, largeTickInterval) => {
         let angles = Array(13).fill().map((x, i) => i)
         let ticks = angles.map(a => {
             return (
                 <line
-                    y1={40}
-                    y2={40}
+                    y1={20}
+                    y2={20}
                     x1={-21}
                     x2={21}
                     stroke={textColor}
@@ -47,7 +48,7 @@ const PolarRatio = (props) => {
                     text-anchor="middle"
                     alignment-baseline="middle"
                     x="-27"
-                    y="40"
+                    y="20"
                     fill={textColor}
                     font-size="4"
                     transform={`translate(0 ${a * -step})`}>{a * 10}%</text>
@@ -72,10 +73,10 @@ const PolarRatio = (props) => {
         <div class={styles.container}>
             <svg
                 style={{ width: "inherit", height: "inherit" }}
-                viewBox={[-45, -45, 90, 90].join(" ")}
+                viewBox={[-45, -45, 90, 75].join(" ")}
             >
 
-                <rect x="-20" y={40 - (percent / 12) * (step + 1)} width="40" height={(percent / 12) * (step + 1)} fill={color} />
+                <rect x="-20" y={20 - (percent / 12) * (step + 1)} width="40" height={(percent / 12) * (step + 1)} fill={color} />
                 {ticks(15, 30)}
                 {tickText(30)}
                 <text
@@ -86,13 +87,6 @@ const PolarRatio = (props) => {
                     fill={textColor}
                     font-size="8">{awa.toFixed(0)}%
                 </text>
-                <circle
-                    r="1"
-                    x="0"
-                    y="40"
-                    fill="red"
-                    transform={`translate(20 ${40 - (highPercent / 12) * (step + 1)})`}
-                />
             </svg>
         </div >
     )

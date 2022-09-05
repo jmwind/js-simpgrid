@@ -63,6 +63,14 @@ const App = () => {
     const DEMO_METRIC = "300"
     const DEMO_SVG = "400"
 
+    useEffect(() => {
+        console.log("New Sections:")
+        for (let i = 0; i < sections.length; i++) {
+            const s = sections[i]
+            console.log(`Section: ${s.props.children.type.name} ${s.props.grid_order} ${s.props.name}`)
+        }
+    }, [sections])
+
     const deleteSection = (id) => {
         console.log("delete me: " + id)
         const updateSections = [...sectionsRef.current]
