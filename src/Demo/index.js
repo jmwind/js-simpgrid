@@ -53,9 +53,15 @@ const App = () => {
     const [columns, setColumns] = useState(3)
     const [sections, setSections] = useState([])
     const [metrics, setMetrics] = useState(SkData.newMetrics());
+    const [newSectionType, setNewSectionType] = useState(SkData.AWA)
     const sectionsRef = useRef()
 
     sectionsRef.current = sections
+
+    const WIND_DIRECTION = "100"
+    const POLAR_RATIO = "200"
+    const DEMO_METRIC = "300"
+    const DEMO_SVG = "400"
 
     const deleteSection = (id) => {
         console.log("delete me: " + id)
@@ -81,6 +87,7 @@ const App = () => {
 
     const initDefaultCards = () => {
         let secs = []
+        /*
         addSection(secs, "Rando", <NumberCard />)
         addSection(secs, "Rando", <NumberCard />)
         addSection(secs, "Rando", <NumberCard />)
@@ -90,6 +97,7 @@ const App = () => {
         addSection(secs, "Polar %", <PolarRatio metrics={metrics} />)
         addSection(secs, "SOG", <BaseMetric metrics={metrics} metric_name={SkData.SOG} />)
         setSections(secs)
+        */
     }
 
     useEffect(() => {
@@ -108,10 +116,25 @@ const App = () => {
         setColumns(parseInt(event.target.value));
     }
 
+    const handleNewSectionChange = (event) => {
+        setNewSectionType(event.target.value)
+    }
+
+    const generateSectionType = () => {
+        switch (newSectionType) {
+            case WIND_DIRECTION: return { name: "Wind Direction", item: <WindDirection metrics={metrics} /> }
+            case POLAR_RATIO: return { name: "Polar Ratio", item: <PolarRatio metrics={metrics} /> }
+            case DEMO_METRIC: return { name: "Demo Metric", item: <NumberCard /> }
+            case DEMO_SVG: return { name: "SVG", item: <Card /> }
+            default:
+                return { name: newSectionType, item: <BaseMetric metrics={metrics} metric_name={newSectionType} /> }
+        }
+    }
+
     const handleNewCardClick = (event) => {
-        const nextCard = Math.random() >= 0.5 ? <NumberCard /> : <Card />
         const updateSections = [...sections]
-        addSection(updateSections, nextCard)
+        const newSection = generateSectionType()
+        addSection(updateSections, newSection.name, newSection.item)
         setSections(updateSections)
     }
 
@@ -126,8 +149,18 @@ const App = () => {
                     <option value="4" >4</option>
                     <option value="5" >5</option>
                 </select>
-                <span style={{ color: "white", padding: 10, fontSize: 14 }}>Show Titles:</span>
                 <button style={{ color: "white", backgroundColor: "#161B1C", marginLeft: 15 }} onClick={handleNewCardClick}>New Card</button>
+                <select style={{ color: "white", backgroundColor: "#161B1C" }} value={newSectionType} onChange={handleNewSectionChange}>
+                    <option value={DEMO_METRIC}>Demo Metric</option>
+                    <option value={DEMO_SVG} >Demo SVG</option>
+                    <option value={WIND_DIRECTION} >Wind Direction</option>
+                    <option value={POLAR_RATIO} >Polar Ratio</option>
+                    <option value={SkData.AWA} >AWA</option>
+                    <option value={SkData.AWS}>AWS</option>
+                    <option value={SkData.SOG} >SOG</option>
+                    <option value={SkData.TWA} >TWA</option>
+                    <option value={SkData.TWS} >TWS</option>
+                </select>
             </div>
             <Grid cols={columns}>
                 {sections}
