@@ -9,6 +9,7 @@ import PolarRatio from '../PolarRatio';
 import BaseMetric from '../BaseMetric';
 
 const colors = ['red', 'blue', 'orange', 'purple', 'green', 'black', 'pink', 'grey'];
+const SAVED_SECTIONS = "jsgrid.sections"
 
 const randomColor = () => {
     const index = Math.round(Math.random() * colors.length);
@@ -64,11 +65,17 @@ const App = () => {
     const DEMO_SVG = "400"
 
     useEffect(() => {
-        console.log("New Sections:")
+        let settings = []
         for (let i = 0; i < sections.length; i++) {
             const s = sections[i]
-            console.log(`Section: ${s.props.children.type.name} ${s.props.grid_order} ${s.props.name}`)
+            let o = { type: s.props.children.type.name, grid_order: s.props.grid_order, name: s.props.name }
+            if (o.type == "BaseMetric") {
+                o.metric_name = s.props.children.props.metric_name
+            }
+            settings.push(o)
         }
+        if (settings.length > 0)
+            localStorage.setItem(SAVED_SECTIONS, JSON.stringify(settings))
     }, [sections])
 
     const deleteSection = (id) => {
@@ -94,17 +101,11 @@ const App = () => {
 
     const initDefaultCards = () => {
         let secs = []
-        /*
-        addSection(secs, "Rando", <NumberCard />)
-        addSection(secs, "Rando", <NumberCard />)
-        addSection(secs, "Rando", <NumberCard />)
-        addSection(secs, "Rando", <Card />)
-        addSection(secs, "Rando", <NumberCard />)
-        addSection(secs, "AWA", <WindDirection metrics={metrics} />)
-        addSection(secs, "Polar %", <PolarRatio metrics={metrics} />)
-        addSection(secs, "SOG", <BaseMetric metrics={metrics} metric_name={SkData.SOG} />)
-        setSections(secs)
-        */
+        let saved_sections = localStorage.getItem(SAVED_SECTIONS)
+        if (saved_sections) {
+            const secs = JSON.parse(saved_sections)
+
+        }
     }
 
     useEffect(() => {
