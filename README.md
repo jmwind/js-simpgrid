@@ -7,4 +7,5 @@ TODOs.
 - [] add concept of layouts -> [metrics] and switching and persist
 - [] adding new metric type not requiring changes to demo
 - [] proptypes, typescript?
+- [] verify how minimum size of metrics cause resize issues (can't resize smaller than size)
 - [] verify all callbacks and listeners... leaking?

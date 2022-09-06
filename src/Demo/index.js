@@ -59,10 +59,10 @@ const App = () => {
 
     sectionsRef.current = sections
 
-    const WIND_DIRECTION = "100"
-    const POLAR_RATIO = "200"
-    const DEMO_METRIC = "300"
-    const DEMO_SVG = "400"
+    const WIND_DIRECTION = "WindDirection"
+    const POLAR_RATIO = "PolarRatio"
+    const DEMO_METRIC = "NumberCard"
+    const DEMO_SVG = "Card"
 
     useEffect(() => {
         let settings = []
@@ -87,9 +87,12 @@ const App = () => {
         setSections(updateSections)
     }
 
-    const addSection = (array, name, component) => {
+    const addSection = (array, name, component, grid_order = -1) => {
+        if (grid_order < 0) {
+            grid_order = array.length
+        }
         array.push(
-            <Section name={name} grid_order={array.length} delete_func={deleteSection}>
+            <Section name={name} grid_order={grid_order} delete_func={deleteSection}>
                 {component}
             </Section>
         )
@@ -100,11 +103,17 @@ const App = () => {
     }
 
     const initDefaultCards = () => {
-        let secs = []
         let saved_sections = localStorage.getItem(SAVED_SECTIONS)
         if (saved_sections) {
+            let new_sections = []
             const secs = JSON.parse(saved_sections)
-
+            for (let i = 0; i < secs.length; i++) {
+                let s = secs[i]
+                let type = s.type == "BaseMetric" ? s.metric_name : s.type
+                let section = generateSectionType(type)
+                addSection(new_sections, s.name, section.item, s.grid_order)
+            }
+            setSections(new_sections)
         }
     }
 
@@ -128,20 +137,20 @@ const App = () => {
         setNewSectionType(event.target.value)
     }
 
-    const generateSectionType = () => {
-        switch (newSectionType) {
+    const generateSectionType = (type) => {
+        switch (type) {
             case WIND_DIRECTION: return { name: "Wind Direction", item: <WindDirection metrics={metrics} /> }
             case POLAR_RATIO: return { name: "Polar Ratio", item: <PolarRatio metrics={metrics} /> }
             case DEMO_METRIC: return { name: "Demo Metric", item: <NumberCard /> }
             case DEMO_SVG: return { name: "SVG", item: <Card /> }
             default:
-                return { name: metrics[newSectionType].nameMetric, item: <BaseMetric metrics={metrics} metric_name={newSectionType} /> }
+                return { name: metrics[type].nameMetric, item: <BaseMetric metrics={metrics} metric_name={type} /> }
         }
     }
 
     const handleNewCardClick = (event) => {
         const updateSections = [...sections]
-        const newSection = generateSectionType()
+        const newSection = generateSectionType(newSectionType)
         addSection(updateSections, newSection.name, newSection.item)
         setSections(updateSections)
     }
