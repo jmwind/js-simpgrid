@@ -150,8 +150,6 @@ const Section = ({ name, span_x, span_y, grid_order, children, show_title, reord
         setDragResize(false)
     }
 
-
-
     const brightness = dragOver || dragResize ? "brightness(150%)" : ""
     let boxStyle = {
         filter: `${brightness}`,

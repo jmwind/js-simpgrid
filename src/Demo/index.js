@@ -79,12 +79,14 @@ const App = () => {
     }, [sections])
 
     const deleteSection = (id) => {
+        //if (window.confirm("Sure?")) {
         const updateSections = [...sectionsRef.current]
         updateSections.splice(id, 1)
         for (let i = 0; i < updateSections.length; i++) {
             updateSections[i].props.grid_order = i
         }
         setSections(updateSections)
+        //}
     }
 
     const addSection = (array, name, component, grid_order = -1) => {
