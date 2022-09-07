@@ -63,6 +63,7 @@ const App = () => {
     const DEMO_METRIC = "NumberCard"
     const DEMO_SVG = "Card"
 
+    // Save sections to local storage
     useEffect(() => {
         let settings = []
         for (let i = 0; i < sections.length; i++) {
@@ -73,8 +74,9 @@ const App = () => {
             }
             settings.push(o)
         }
-        if (settings.length > 0)
+        if (settings.length > 0) {
             localStorage.setItem(SAVED_SECTIONS, JSON.stringify(settings))
+        }
     }, [sections])
 
     const deleteSection = (id) => {
@@ -83,6 +85,9 @@ const App = () => {
         updateSections.splice(id, 1)
         for (let i = 0; i < updateSections.length; i++) {
             updateSections[i].props.grid_order = i
+        }
+        if (updateSections.length == 0) {
+            localStorage.removeItem(SAVED_SECTIONS)
         }
         setSections(updateSections)
         //}
