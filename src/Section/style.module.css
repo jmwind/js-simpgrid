@@ -7,11 +7,6 @@
     border-radius: 6px;
     border-color: #2b2f30;
     background-color: #2b2f30;
-    transition: all 0.5s;
-}
-
-.box:hover {
-    cursor: pointer;
 }
 
 .box:active {
@@ -48,7 +43,7 @@
 }
 
 .box_header_drag:active {
-    cursor: grabbing;
+    cursor: col-resize;
     cursor: -moz-grabbing;
     cursor: -webkit-grabbing;
 }

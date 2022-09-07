@@ -163,7 +163,7 @@ const Section = ({ name, span_x, span_y, grid_order, children, show_title, reord
             boxStyle['borderStyle'] = 'solid',
             boxStyle['borderWidth'] = 2
     } else {
-        boxStyle['transition'] = "width height 0.7s"
+        boxStyle['transition'] = "all 0.7s"
         boxStyle['width'] = "100%"
     }
 
