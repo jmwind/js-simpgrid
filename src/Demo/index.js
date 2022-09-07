@@ -8,10 +8,8 @@ import WindDirection from '../WindDirection';
 import PolarRatio from '../PolarRatio';
 import BaseMetric from '../BaseMetric';
 
-const colors = ['red', 'blue', 'orange', 'purple', 'green', 'black', 'pink', 'grey'];
-const SAVED_SECTIONS = "jsgrid.sections"
-
 const randomColor = () => {
+    const colors = ['red', 'blue', 'orange', 'purple', 'green', 'black', 'pink', 'grey'];
     const index = Math.round(Math.random() * colors.length);
     return colors[index];
 }
@@ -59,6 +57,7 @@ const App = () => {
 
     sectionsRef.current = sections
 
+    const SAVED_SECTIONS = "jsgrid.sections"
     const WIND_DIRECTION = "WindDirection"
     const POLAR_RATIO = "PolarRatio"
     const DEMO_METRIC = "NumberCard"
@@ -131,7 +130,7 @@ const App = () => {
         }
     }, [])
 
-    const handleChange = (event) => {
+    const handleColsChange = (event) => {
         setColumns(parseInt(event.target.value));
     }
 
@@ -161,7 +160,7 @@ const App = () => {
         <div>
             <div style={{ padding: 10, backgroundColor: "#161B1C" }}>
                 <span style={{ color: "white", padding: 10, fontSize: 14 }}>Columns:</span>
-                <select style={{ color: "white", backgroundColor: "#161B1C" }} value={columns} onChange={handleChange}>
+                <select style={{ color: "white", backgroundColor: "#161B1C" }} value={columns} onChange={handleColsChange}>
                     <option value="1" >1</option>
                     <option value="2" >2</option>
                     <option value="3" >3</option>

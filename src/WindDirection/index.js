@@ -122,6 +122,13 @@ const WindDirection = (props) => {
                         refX="0" refY="3.5" orient="auto" viewBox="0 0 50 50">
                         <polygon fill={textColor} points="0 0, 10 3.5, 0 7" />
                     </marker>
+                    <marker id="arrow" viewBox="0 -5 10 10" refX="5" refY="0" markerWidth="2" markerHeight="2" orient="auto">
+                        <path class="cool" d="M0,-5L10,0L0,5"></path>
+                    </marker>
+                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:rgb(255,255,0);stop-opacity:1" />
+                        <stop offset="90%" style="stop-color:rgb(255,0,0);stop-opacity:1" />
+                    </linearGradient>
                 </defs>
                 <path d={pathData} fill="lightgrey" />
                 <path d={portData} fill="red" />
