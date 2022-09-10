@@ -51,7 +51,9 @@ const NumberCard = () => {
 const App = () => {
     const [columns, setColumns] = useState(3)
     const [sections, setSections] = useState([])
-    const [metrics, setMetrics] = useState(SkData.newMetrics());
+    const [layouts] = useState(["Page 1", "Page 2"])
+    const [currentLayout, setCurrentLayout] = useState(0)
+    const [metrics] = useState(SkData.newMetrics());
     const [newSectionType, setNewSectionType] = useState(SkData.AWA)
     const sectionsRef = useRef()
 
@@ -63,20 +65,35 @@ const App = () => {
     const DEMO_METRIC = "NumberCard"
     const DEMO_SVG = "Card"
 
-    // Save sections to local storage
-    useEffect(() => {
+    const SAVED_SECTIONS_KEY = () => {
+        return `${SAVED_SECTIONS}_${layouts[currentLayout]}`
+    }
+
+    const saveState = () => {
         let settings = []
         for (let i = 0; i < sections.length; i++) {
             const s = sections[i]
-            let o = { type: s.props.children.type.name, grid_order: s.props.grid_order, name: s.props.name }
+            let o = {
+                type: s.props.children.type.name,
+                grid_order: s.props.grid_order,
+                name: s.props.name,
+                span_x: s.props.span_x,
+                span_y: s.props.span_y,
+            }
             if (o.type == "BaseMetric") {
                 o.metric_name = s.props.children.props.metric_name
             }
             settings.push(o)
         }
         if (settings.length > 0) {
-            localStorage.setItem(SAVED_SECTIONS, JSON.stringify(settings))
+            let layout = { columns: columns, sections: settings }
+            localStorage.setItem(SAVED_SECTIONS_KEY(), JSON.stringify(layout))
         }
+    }
+
+    // Save sections to local storage
+    useEffect(() => {
+        saveState()
     }, [sections])
 
     const deleteSection = (id) => {
@@ -93,12 +110,12 @@ const App = () => {
         //}
     }
 
-    const addSection = (array, name, component, grid_order = -1) => {
+    const addSection = (array, name, component, grid_order = -1, span_x = 1, span_y = 1,) => {
         if (grid_order < 0) {
             grid_order = array.length
         }
         array.push(
-            <Section name={name} grid_order={grid_order} delete_func={deleteSection}>
+            <Section name={name} grid_order={grid_order} delete_func={deleteSection} span_x={span_x} span_y={span_y}  >
                 {component}
             </Section>
         )
@@ -108,19 +125,20 @@ const App = () => {
         return new WebSocket(url);
     }
 
-    const initDefaultCards = () => {
-        let saved_sections = localStorage.getItem(SAVED_SECTIONS)
-        if (saved_sections) {
-            let new_sections = []
-            const secs = JSON.parse(saved_sections)
-            for (let i = 0; i < secs.length; i++) {
-                let s = secs[i]
+    const restoreSections = () => {
+        let new_sections = []
+        let layout = localStorage.getItem(SAVED_SECTIONS_KEY())
+        if (layout) {
+            const l = JSON.parse(layout)
+            for (let i = 0; i < l.sections.length; i++) {
+                let s = l.sections[i]
                 let type = s.type == "BaseMetric" ? s.metric_name : s.type
                 let section = generateSectionType(type)
-                addSection(new_sections, s.name, section.item, s.grid_order)
+                addSection(new_sections, s.name, section.item, s.grid_order, s.span_x, s.span_y)
             }
-            setSections(new_sections)
+            setColumns(l.columns)
         }
+        setSections(new_sections)
     }
 
     useEffect(() => {
@@ -128,12 +146,16 @@ const App = () => {
         client.setState(metrics);
         client.setPolars(SkPolars.readFromFileContents(CATALINA_36_POLARS));
         client.connect();
-        initDefaultCards()
+        restoreSections()
         return () => {
             client.off('delta');
             client.disconnect();
         }
     }, [])
+
+    useEffect(() => {
+        restoreSections()
+    }, [currentLayout])
 
     const handleColsChange = (event) => {
         setColumns(parseInt(event.target.value));
@@ -161,9 +183,21 @@ const App = () => {
         setSections(updateSections)
     }
 
+    const handleLayoutChange = (event) => {
+        setCurrentLayout(layouts.indexOf(event.target.value))
+    }
+
+    const layoutSelectors = () => {
+        return layouts.map((l) => <option value={l}>{l}</option>)
+    }
+
     return (
         <div>
             <div style={{ padding: 10, backgroundColor: "#161B1C" }}>
+                <span style={{ color: "white", padding: 10, fontSize: 14 }}>Layout:</span>
+                <select style={{ color: "white", backgroundColor: "#161B1C" }} value={layouts[currentLayout]} onChange={handleLayoutChange}>
+                    {layoutSelectors()}
+                </select>
                 <span style={{ color: "white", padding: 10, fontSize: 14 }}>Columns:</span>
                 <select style={{ color: "white", backgroundColor: "#161B1C" }} value={columns} onChange={handleColsChange}>
                     <option value="1" >1</option>
@@ -172,7 +206,7 @@ const App = () => {
                     <option value="4" >4</option>
                     <option value="5" >5</option>
                 </select>
-                <button style={{ color: "white", backgroundColor: "#161B1C", marginLeft: 15 }} onClick={handleNewCardClick}>New Card</button>
+                <button style={{ color: "white", backgroundColor: "#161B1C", marginLeft: 15 }} onClick={handleNewCardClick}>Add Card</button>
                 <select style={{ color: "white", backgroundColor: "#161B1C" }} value={newSectionType} onChange={handleNewSectionChange}>
                     <option value={DEMO_METRIC}>Demo Metric</option>
                     <option value={DEMO_SVG} >Demo SVG</option>
@@ -185,7 +219,7 @@ const App = () => {
                     <option value={SkData.TWS} >TWS</option>
                 </select>
             </div>
-            <Grid cols={columns}>
+            <Grid cols={columns} layout_change_func={saveState}>
                 {sections}
             </Grid>
         </div >

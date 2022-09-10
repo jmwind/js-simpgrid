@@ -6,7 +6,7 @@ import DragIcon from './icons/right.svg'
 import TrashIcon from './icons/trash.svg'
 import styles from './style.module.css';
 
-const Section = ({ name, span_x, span_y, grid_order, children, show_title, reorder_func, delete_func, columns }) => {
+const Section = ({ name, span_x, span_y, grid_order, children, show_title, reorder_func, delete_func, resize_func, columns }) => {
     const [order, setOrder] = useState(grid_order)
     const [spanx, setSpanX] = useState(span_x)
     const [spany, setSpanY] = useState(span_y)
@@ -30,17 +30,20 @@ const Section = ({ name, span_x, span_y, grid_order, children, show_title, reord
         setOrder(grid_order)
     }, [grid_order])
 
+    useEffect(() => {
+        setSpanX(span_x)
+        setSpanY(span_y)
+    }, [span_x, span_y])
+
     const isMoveEvent = (event) => {
         return event.dataTransfer.types[0] == datatx
     }
 
     const resize = () => {
         if (spanx == 1) {
-            setSpanX(spanx + 1);
-            setSpanY(spany + 1);
+            resize_func(order, spanx + 1, spany + 1)
         } else {
-            setSpanX(1);
-            setSpanY(1);
+            resize_func(order, 1, 1)
         }
     }
 
@@ -73,13 +76,13 @@ const Section = ({ name, span_x, span_y, grid_order, children, show_title, reord
 
     const snapToX = (newX, newSpan) => {
         setOrigWidth(newX)
-        setSpanX(newSpan)
+        resize_func(order, newSpan, spany)
         setDragResize(false)
     }
 
     const snapToY = (newY, newSpan) => {
         setOrigHeight(newY)
-        setSpanY(newSpan)
+        resize_func(order, spanx, newSpan)
         setDragResize(false)
     }
 
