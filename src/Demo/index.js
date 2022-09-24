@@ -7,6 +7,7 @@ import { SkData, SkPolars, CATALINA_36_POLARS } from 'sk-jsclient/sk-data';
 import WindDirection from '../WindDirection';
 import PolarRatio from '../PolarRatio';
 import BaseMetric from '../BaseMetric';
+import Histogram from '../Histogram';
 
 const randomColor = () => {
     const colors = ['red', 'blue', 'orange', 'purple', 'green', 'black', 'pink', 'grey'];
@@ -51,22 +52,24 @@ const NumberCard = () => {
 const App = () => {
     const [columns, setColumns] = useState(3)
     const [sections, setSections] = useState([])
-    const [layouts] = useState(["Page 1", "Page 2"])
+    const [layouts, setLayouts] = useState([])
     const [currentLayout, setCurrentLayout] = useState(0)
     const [metrics] = useState(SkData.newMetrics());
     const [newSectionType, setNewSectionType] = useState(SkData.AWA)
     const sectionsRef = useRef()
 
+    // Needed in callbacks for adding/removing sections as the callback
+    // is registered in useEffect before sections are initialized
     sectionsRef.current = sections
 
-    const SAVED_SECTIONS = "jsgrid.sections"
     const WIND_DIRECTION = "WindDirection"
     const POLAR_RATIO = "PolarRatio"
     const DEMO_METRIC = "NumberCard"
+    const HISTOGRAM = "Histogram"
     const DEMO_SVG = "Card"
 
     const SAVED_SECTIONS_KEY = () => {
-        return `${SAVED_SECTIONS}_${layouts[currentLayout]}`
+        return `${layouts[currentLayout]}`
     }
 
     const saveState = () => {
@@ -94,7 +97,7 @@ const App = () => {
     // Save sections to local storage
     useEffect(() => {
         saveState()
-    }, [sections])
+    }, [sections, columns])
 
     const deleteSection = (id) => {
         //if (window.confirm("Sure?")) {
@@ -125,9 +128,9 @@ const App = () => {
         return new WebSocket(url);
     }
 
-    const restoreSections = () => {
+    const restoreSections = (layoutName) => {
         let new_sections = []
-        let layout = localStorage.getItem(SAVED_SECTIONS_KEY())
+        let layout = localStorage.getItem(layoutName)
         if (layout) {
             const l = JSON.parse(layout)
             for (let i = 0; i < l.sections.length; i++) {
@@ -141,12 +144,23 @@ const App = () => {
         setSections(new_sections)
     }
 
+    const restoreLayouts = () => {
+        let newLayouts = []
+        for (let i = 0; i < localStorage.length; i++) {
+            newLayouts.push(localStorage.key(i))
+        }
+        setLayouts(newLayouts)
+        setCurrentLayout(0)
+        return newLayouts
+    }
+
     useEffect(() => {
         let client = new SkClient(createWebsocket);
         client.setState(metrics);
         client.setPolars(SkPolars.readFromFileContents(CATALINA_36_POLARS));
         client.connect();
-        restoreSections()
+        const newLayouts = restoreLayouts();
+        restoreSections(newLayouts[0])
         return () => {
             client.off('delta');
             client.disconnect();
@@ -154,7 +168,9 @@ const App = () => {
     }, [])
 
     useEffect(() => {
-        restoreSections()
+        if (layouts.length > 0) {
+            restoreSections(layouts[currentLayout])
+        }
     }, [currentLayout])
 
     const handleColsChange = (event) => {
@@ -165,11 +181,30 @@ const App = () => {
         setNewSectionType(event.target.value)
     }
 
+    const handleNewLayout = (event) => {
+        const newLayouts = [...layouts]
+        newLayouts.push(`Page ${layouts.length + 1}`)
+        setLayouts(newLayouts)
+        setCurrentLayout(newLayouts.length - 1)
+    }
+
+    const handleDeleteLayout = (event) => {
+        if (layouts.length > 1) {
+            const newLayouts = layouts.filter(l => l != layouts[currentLayout])
+            localStorage.removeItem(layouts[currentLayout])
+            setLayouts(newLayouts)
+            setCurrentLayout(0)
+        } else {
+            window.alert("Can't delete the last page")
+        }
+    }
+
     const generateSectionType = (type) => {
         switch (type) {
             case WIND_DIRECTION: return { name: "Wind Direction", item: <WindDirection metrics={metrics} /> }
             case POLAR_RATIO: return { name: "Polar Ratio", item: <PolarRatio metrics={metrics} /> }
             case DEMO_METRIC: return { name: "Demo Metric", item: <NumberCard /> }
+            case HISTOGRAM: return { name: "Histogram", item: <Histogram /> }
             case DEMO_SVG: return { name: "SVG", item: <Card /> }
             default:
                 return { name: metrics[type].nameMetric, item: <BaseMetric metrics={metrics} metric_name={type} /> }
@@ -198,6 +233,8 @@ const App = () => {
                 <select style={{ color: "white", backgroundColor: "#161B1C" }} value={layouts[currentLayout]} onChange={handleLayoutChange}>
                     {layoutSelectors()}
                 </select>
+                <button style={{ color: "white", backgroundColor: "#161B1C", marginLeft: 15 }} onClick={handleNewLayout}>Add Page</button>
+                <button style={{ color: "white", backgroundColor: "#161B1C", marginLeft: 15 }} onClick={handleDeleteLayout}>Delete Page</button>
                 <span style={{ color: "white", padding: 10, fontSize: 14 }}>Columns:</span>
                 <select style={{ color: "white", backgroundColor: "#161B1C" }} value={columns} onChange={handleColsChange}>
                     <option value="1" >1</option>
@@ -206,18 +243,20 @@ const App = () => {
                     <option value="4" >4</option>
                     <option value="5" >5</option>
                 </select>
-                <button style={{ color: "white", backgroundColor: "#161B1C", marginLeft: 15 }} onClick={handleNewCardClick}>Add Card</button>
+                <span style={{ color: "white", padding: 10, fontSize: 14 }}>Card:</span>
                 <select style={{ color: "white", backgroundColor: "#161B1C" }} value={newSectionType} onChange={handleNewSectionChange}>
                     <option value={DEMO_METRIC}>Demo Metric</option>
                     <option value={DEMO_SVG} >Demo SVG</option>
                     <option value={WIND_DIRECTION} >Wind Direction</option>
                     <option value={POLAR_RATIO} >Polar Ratio</option>
+                    <option value={HISTOGRAM} >Histogram</option>
                     <option value={SkData.AWA} >AWA</option>
                     <option value={SkData.AWS}>AWS</option>
                     <option value={SkData.SOG} >SOG</option>
                     <option value={SkData.TWA} >TWA</option>
                     <option value={SkData.TWS} >TWS</option>
                 </select>
+                <button style={{ color: "white", backgroundColor: "#161B1C", marginLeft: 15 }} onClick={handleNewCardClick}>Add Card</button>
             </div>
             <Grid cols={columns} layout_change_func={saveState}>
                 {sections}
