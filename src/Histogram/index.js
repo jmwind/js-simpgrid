@@ -1,27 +1,101 @@
 import styles from "./style.module.css";
-import { arc } from "d3-shape"
 import { useState, useEffect } from "preact/hooks"
 import { SkConversions, SkData } from 'sk-jsclient/sk-data'
 
 const Histogram = (props) => {
     const [metrics, setMetrics] = useState(props.metrics)
     const [time, setTime] = useState(Date.now())
-    const [lowAngle, setLowAngle] = useState(0)
-    const [highAngle, setHighAngle] = useState(0)
+    const [high, setHigh] = useState(0)
+    const [low, setLow] = useState(0)
 
-    const data = [7, 5, 7, 6, 9, 22, 9, 8, 7, 6, 9, 5, 11, 14, 15, 18, 8, 9, 6, 5, 4, 3, 2]
+    // most recent is at index 0
+    const data = [4.4, 21.9, 22.2, 11.1, 19.4, 12.9, 12.9, 11.1, 2.1, 1.4, 2.2, 4.1, 2.4, 2.9, 2.9, 1.1, 2.1, 4.4, 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, , 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, , 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, , 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, , 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, , 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, , 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, 2.9, 2.2, 4.1, 6.4, 2.2, 4.1, 6.4, 2.9, 2.2, 4.1, 6.4, 2.2, 4.1, 2.4, 2.9, 2.2, 4.1, 6.4, 2.2, 4.1, 6.4, 2.9, 2.2, 4.1, 6.4]
+    const timeframe_secs = 60
+    const sample_rate = 30
+    const type = "kts"
+    const width = 82
+    const grid_ticks = 5
 
     useEffect(() => {
-        let timer = setInterval(() => setTime(Date.now()), 250);
+        let timer = setInterval(() => setTime(Date.now()), 1000);
+        let _low = data[0]
+        let _high = data[0]
+        for (let i = 0; i < data.length; i++) {
+            if (data[i] < _low) {
+                _low = data[i]
+            }
+            if (data[i] > _high) {
+                _high = data[i]
+            }
+        }
+        setHigh(_high)
+        setLow(_low)
         return () => clearInterval(timer);
     }, []);
+
+    const drawBars = () => {
+        let startx = width / 2
+        const in_range = data.slice(0, startx)
+        let tick_size = width / high
+        let bars = in_range.map(a => {
+            startx = startx - 2
+            return (
+                <line
+                    y1={39}
+                    y2={39 - (a * tick_size)}
+                    x1={startx}
+                    x2={startx}
+                    stroke="orange"
+                    stroke-width="1"
+                />
+            )
+        });
+        return bars
+    }
+
+    const drawTicks = () => {
+        let ticks = []
+        const space = width / grid_ticks
+        for (let i = 1; i < grid_ticks; i++) {
+            const y = 39 - (i * space)
+            ticks.push(
+                <line
+                    y1={y}
+                    y2={y}
+                    x1={-41}
+                    x2={-40}
+                    stroke="white"
+                    stroke-width="1"
+                />
+            )
+        }
+        return ticks
+    }
+
+    const drawTickLabels = () => {
+        let ticks = []
+        const space = width / grid_ticks
+        for (let i = 1; i < grid_ticks; i++) {
+            const y = 39 - (i * space)
+            ticks.push(
+                <text
+                    text-anchor="middle"
+                    alignment-baseline="middle"
+                    x="-44"
+                    y={y}
+                    fill="lightgrey"
+                    font-size="3">{Math.round(i * (high / grid_ticks))}
+                </text>
+            )
+        }
+        return ticks
+    }
 
     return (
         <div class={styles.container}>
             <svg
                 style={{ width: "inherit", height: "inherit" }}
-                viewBox={[-50, -50, 100, 100].join(" ")}
-            >
+                viewBox={[-50, -50, 100, 100].join(" ")}>
                 <line y1="-40" y2="40" x1="-40" x2="-40" strokeWidth={1} stroke="white" />
                 <line y1="40" y2="40" x1="-40" x2="40" strokeWidth={1} stroke="white" />
                 <text
@@ -30,8 +104,19 @@ const Histogram = (props) => {
                     x="0"
                     y="45"
                     fill="white"
-                    font-size="5">Kts
+                    font-size="5">1 hr
                 </text>
+                <text
+                    text-anchor="middle"
+                    alignment-baseline="middle"
+                    x="-45"
+                    y="0"
+                    fill="white"
+                    font-size="5">{type}
+                </text>
+                {drawBars()}
+                {drawTicks()}
+                {drawTickLabels()}
             </svg>
         </div >
     )
