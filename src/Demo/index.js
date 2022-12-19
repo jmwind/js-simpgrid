@@ -204,7 +204,7 @@ const App = () => {
             case WIND_DIRECTION: return { name: "Wind Direction", item: <WindDirection metrics={metrics} /> }
             case POLAR_RATIO: return { name: "Polar Ratio", item: <PolarRatio metrics={metrics} /> }
             case DEMO_METRIC: return { name: "Demo Metric", item: <NumberCard /> }
-            case HISTOGRAM: return { name: "Histogram", item: <Histogram metrics={metrics} /> }
+            case HISTOGRAM: return { name: "Histogram", item: <Histogram metrics={metrics} metric_name={SkData.AWS} /> }
             case DEMO_SVG: return { name: "SVG", item: <Card /> }
             default:
                 return { name: metrics[type].nameMetric, item: <BaseMetric metrics={metrics} metric_name={type} /> }

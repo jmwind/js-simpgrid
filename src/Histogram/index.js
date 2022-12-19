@@ -7,17 +7,28 @@ const Histogram = (props) => {
     const [time, setTime] = useState(Date.now())
     const [high, setHigh] = useState(0)
     const [low, setLow] = useState(0)
+    const [data, setData] = useState([])
 
     // most recent is at index 0
-    const data = [4.4, 21.9, 22.2, 11.1, 19.4, 12.9, 12.9, 11.1, 2.1, 1.4, 2.2, 4.1, 2.4, 2.9, 2.9, 1.1, 2.1, 4.4, 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, , 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, , 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, , 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, , 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, , 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, , 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, 2.9, 2.2, 4.1, 6.4, 2.2, 4.1, 6.4, 2.9, 2.2, 4.1, 6.4, 2.2, 4.1, 2.4, 2.9, 2.2, 4.1, 6.4, 2.2, 4.1, 6.4, 2.9, 2.2, 4.1, 6.4]
+    //const data = [4.4, 21.9, 22.2, 11.1, 19.4, 12.9, 12.9, 11.1, 2.1, 1.4, 2.2, 4.1, 2.4, 2.9, 2.9, 1.1, 2.1, 4.4, 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, , 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, , 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, , 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, , 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, , 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, , 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, 4.1, 9.4, 2.9, 2.9, 1.1, 2.1, 4.4, 2.9, 2.2, 4.1, 6.4, 2.2, 4.1, 6.4, 2.9, 2.2, 4.1, 6.4, 2.2, 4.1, 2.4, 2.9, 2.2, 4.1, 6.4, 2.2, 4.1, 6.4, 2.9, 2.2, 4.1, 6.4]
+    //const data = []
     const timeframe_secs = 60
     const sample_rate = 30
     const type = "kts"
     const width = 82
+    const data_points = width / 2 - 2
     const grid_ticks = 5
 
     useEffect(() => {
         let timer = setInterval(() => setTime(Date.now()), 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    useEffect(() => {
+        let m = metrics[props.metric_name];
+        let m_val = SkConversions.fromMetric(m).toFixed(m.rounding);
+        let newData = [m_val, ...data.slice(0, data_points - 1)]
+        setData(newData)
         let _low = data[0]
         let _high = data[0]
         for (let i = 0; i < data.length; i++) {
@@ -30,12 +41,11 @@ const Histogram = (props) => {
         }
         setHigh(_high)
         setLow(_low)
-        return () => clearInterval(timer);
-    }, []);
+    }, [time])
 
     const drawBars = () => {
-        let startx = width / 2
-        const in_range = data.slice(0, startx)
+        let startx = data_points + 2
+        const in_range = data
         let tick_size = width / high
         let bars = in_range.map(a => {
             startx = startx - 2
@@ -45,7 +55,7 @@ const Histogram = (props) => {
                     y2={39 - (a * tick_size)}
                     x1={startx}
                     x2={startx}
-                    stroke="orange"
+                    stroke="yellow"
                     stroke-width="1"
                 />
             )
@@ -74,19 +84,21 @@ const Histogram = (props) => {
 
     const drawTickLabels = () => {
         let ticks = []
-        const space = width / grid_ticks
-        for (let i = 1; i < grid_ticks; i++) {
-            const y = 39 - (i * space)
-            ticks.push(
-                <text
-                    text-anchor="middle"
-                    alignment-baseline="middle"
-                    x="-44"
-                    y={y}
-                    fill="lightgrey"
-                    font-size="3">{Math.round(i * (high / grid_ticks))}
-                </text>
-            )
+        if (data.length > 1) {
+            const space = width / grid_ticks
+            for (let i = 1; i < grid_ticks; i++) {
+                const y = 39 - (i * space)
+                ticks.push(
+                    <text
+                        text-anchor="middle"
+                        alignment-baseline="middle"
+                        x="-44"
+                        y={y}
+                        fill="lightgrey"
+                        font-size="3">{Math.round(i * (high / grid_ticks))}
+                    </text>
+                )
+            }
         }
         return ticks
     }

@@ -1,4 +1,4 @@
-Simple resizable and moveable grid for dashboards. Mostly CSS, not much fluff.
+Simple resizable and moveable grid for NMEA 2K dashboards. Mostly CSS, not much fluff.
 
 TODOs.
 
